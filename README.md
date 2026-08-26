@@ -29,6 +29,13 @@ yet. It establishes the product boundary and a tested runtime seam for model
 backends. Provider adapters, durable conversations, tool execution, scheduling,
 and operator interfaces are subsequent milestones.
 
+Core compatibility is negotiated live rather than inferred from matching
+repository or package versions. `unitares-resident doctor` connects through the
+public SDK, calls `list_tools(lite=true)`, and verifies Core's versioned
+interface contract, normalized lifecycle envelope, and required lifecycle
+capabilities. It exits nonzero when Core is unreachable or incompatible. Use
+`doctor --offline` only for an explicitly configuration-only check.
+
 ## Development
 
 Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
@@ -37,6 +44,7 @@ Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/).
 uv sync --extra dev
 uv run pytest
 uv run unitares-resident doctor
+uv run unitares-resident doctor --offline
 ```
 
 Runtime configuration uses ordinary environment variables:
