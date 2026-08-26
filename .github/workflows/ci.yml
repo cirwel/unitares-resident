@@ -19,3 +19,25 @@ jobs:
       - run: uv sync --extra dev
       - run: uv run ruff check .
       - run: uv run pytest
+
+  core-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check out the exact Core contract provider
+        uses: actions/checkout@v4
+        with:
+          repository: cirwel/unitares
+          # Contract-producing commit from the coordinated Core PR. Pinning
+          # provenance keeps this consumer gate reproducible while both PRs
+          # are drafts; runtime compatibility is still negotiated live.
+          ref: d044d627daa328fc15cf794ef49f2d929cdca130
+          path: .contract/core
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --extra dev
+      - name: Validate Core's public machine contract
+        run: >-
+          uv run python scripts/check_core_contract.py
+          .contract/core/docs/interface-contract.v1.json

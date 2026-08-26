@@ -34,6 +34,20 @@ Explicitly **not** covered, so that the guarantee is not over-read: provider
 traffic (OpenAI, Anthropic, local models) is expected and unconstrained, and a
 URL assembled at runtime from parts is invisible to a static scan.
 
+## Federation handshake
+
+Resident discovers compatibility through Core itself. The public SDK calls
+`list_tools(lite=true)` and validates the returned
+`unitares.interface-contract.v1` metadata plus the advertised lifecycle tool
+names. The schema-family identifier changes only when the contract document
+shape breaks; its semantic version advances for compatible interface changes.
+Resident accepts the interface range it implements, independently of its own
+package version and Core's repository version.
+
+CI also consumes Core's checked-in machine contract as an external JSON
+artifact. It does not import Core, start its database, or reach through the SDK
+boundary.
+
 ## Runtime seam
 
 `ResidentAgent` subclasses the public SDK's `GovernanceAgent`. The SDK owns MCP
