@@ -22,6 +22,9 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
+  # Declared, not inherited: `packaging` arrives transitively via pytest today,
+  # and scripts/check_sdk_drift.py would break silently if pytest ever drops it.
+  "packaging>=24.0",
   "pytest>=8.0,<10.0",
   "pytest-asyncio>=0.24,<2.0",
   "ruff>=0.12,<1.0",
