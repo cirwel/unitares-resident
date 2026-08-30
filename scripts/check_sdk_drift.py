@@ -2,9 +2,9 @@
 """Report when the pinned `unitares-sdk` range has fallen behind what Core ships.
 
 Resident depends on Core through one published artifact. The pin
-(`unitares-sdk>=0.2.2,<0.3.0`) is what keeps that dependency honest, and it is
-also how the dependency goes quietly stale: Core can publish 0.3.0 and Resident
-keeps resolving 0.2.x forever, tracking a contract nobody is maintaining. Nothing
+(`unitares-sdk>=0.3.0,<0.4.0`) is what keeps that dependency honest, and it is
+also how the dependency goes quietly stale: Core can publish 0.4.0 and Resident
+keeps resolving 0.3.x forever, tracking a contract nobody is maintaining. Nothing
 fails. That is the problem — cross-repo version skew does not announce itself.
 
 This is a REPORTER, not a gate. It exits 0 whether or not drift is found, and the
@@ -33,8 +33,8 @@ PACKAGE = "unitares-sdk"
 PYPI_JSON = "https://pypi.org/pypi/{name}/json"
 
 # Matches the dependency entry regardless of quoting/spacing, e.g.
-#   "unitares-sdk>=0.2.2,<0.3.0"
-#   'unitares_sdk >= 0.2.2, < 0.3.0'
+#   "unitares-sdk>=0.3.0,<0.4.0"
+#   'unitares_sdk >= 0.3.0, < 0.4.0'
 DEP_RE = re.compile(
     r"""["']\s*unitares[-_]sdk\s*(?P<spec>[^"']*)["']""",
     re.IGNORECASE | re.VERBOSE,
