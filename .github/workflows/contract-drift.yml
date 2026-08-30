@@ -1,0 +1,62 @@
+name: Contract drift
+
+# Resident's `core-contract` CI job pins a commit of cirwel/unitares to
+# validate docs/interface-contract.v1.json against (see ci.yml). Nothing
+# re-checks that pin against what Core actually ships — the gate stays green
+# comparing itself to a snapshot nobody maintains. This runs on a schedule and
+# files an issue rather than waiting to be noticed, mirroring sdk-drift.yml's
+# reasoning (and closing the same class of gap it closes for the SDK pin).
+#
+# Deliberately NOT a pull-request gate: a Core contract change would redden
+# every unrelated PR over something no author can fix, which teaches people
+# to ignore the signal.
+on:
+  schedule:
+    - cron: "23 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv sync --extra dev
+
+      # Exit 2 means the check could not find its own subject (job renamed,
+      # pin unreadable, contract file missing at either ref). That must fail
+      # the job — a blind check reporting nothing is indistinguishable from a
+      # healthy one.
+      - name: Check pinned contract ref against Core's default branch
+        id: drift
+        run: |
+          uv run python scripts/check_contract_drift.py --json > drift.json
+          cat drift.json
+          echo "drift=$(jq -r '.drift' drift.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the drift issue
+        if: steps.drift.outputs.drift == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITLE: "core-contract pin has fallen behind Core"
+        run: |
+          body=$(
+            printf 'The `core-contract` job in ci.yml pins a commit whose contract surface no longer matches Core'\''s default branch.\n\n'
+            printf '```json\n%s\n```\n\n' "$(cat drift.json)"
+            printf 'The `core-contract` job is validating a stale snapshot — bump its `ref:`\n'
+            printf 'to `head_ref` above and confirm `check_core_contract.py` still passes\n'
+            printf 'against the new artifact before merging.\n\n'
+            printf 'Filed by `.github/workflows/contract-drift.yml`.\n'
+          )
+          existing=$(gh issue list --state open --search "$TITLE in:title" --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body "$body"
+          else
+            gh issue create --title "$TITLE" --body "$body"
+          fi
