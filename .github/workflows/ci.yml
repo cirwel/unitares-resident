@@ -28,10 +28,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: cirwel/unitares
-          # Contract-producing commit from the coordinated Core PR. Pinning
-          # provenance keeps this consumer gate reproducible while both PRs
-          # are drafts; runtime compatibility is still negotiated live.
-          ref: d044d627daa328fc15cf794ef49f2d929cdca130
+          # Contract-producing commit from the merged Core PR
+          # (cirwel/unitares#1908). Pinning a specific commit keeps this
+          # consumer gate reproducible; advance it whenever
+          # docs/interface-contract.v1.json changes on Core's default branch
+          # (contract-drift.yml reports when it has — see that workflow for
+          # why this pin needs a reporter at all: it already shipped once
+          # pointing at a pre-merge draft commit whose surface_sha256 didn't
+          # match what actually merged).
+          ref: a2a6635057f7893b8c1fb173651b3d2793f98405
           path: .contract/core
       - uses: astral-sh/setup-uv@v6
         with:
