@@ -3,19 +3,25 @@ name: SDK drift
 # Resident tracks Core through one published artifact. When Core publishes past
 # the pinned range, nothing here breaks — Resident just keeps resolving the old
 # SDK and tracking a contract that has moved on. Silence is the failure mode, so
-# this runs on a schedule and files an issue rather than waiting to be noticed.
+# this runs on a schedule and tries to open a bump PR rather than waiting to be
+# noticed. If the automatic bump or re-lock can't complete cleanly (a genuinely
+# breaking release, say), it falls back to filing an issue instead of losing
+# the signal.
 #
 # Deliberately NOT a pull-request gate: an upstream release would redden every
 # unrelated PR over something no author can fix, which teaches people to ignore
-# the signal.
+# the signal. The bump PR itself is opened as a draft and is never auto-merged
+# — a version bump can change behaviour inside SDK code this repo doesn't
+# control, and that always wants a human look at the changelog first.
 on:
   schedule:
     - cron: "17 9 * * 1"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   issues: write
+  pull-requests: write
 
 jobs:
   check:
@@ -37,8 +43,59 @@ jobs:
           cat drift.json
           echo "drift=$(jq -r '.drift or .pin_matches_nothing' drift.json)" >> "$GITHUB_OUTPUT"
 
-      - name: Open or update the drift issue
+      # Each of the next three steps can fail for reasons this workflow can't
+      # fix on its own (an unreadable pin, a re-lock that can't resolve, a
+      # push rejected by branch rules). continue-on-error keeps a failure from
+      # stopping the job so the issue fallback below still runs — outcome
+      # (not conclusion) is checked so a masked failure still gates the next
+      # step correctly.
+      - name: Compute the bumped pin
+        id: bump
         if: steps.drift.outputs.drift == 'true'
+        continue-on-error: true
+        run: |
+          latest=$(jq -r '.latest_published' drift.json)
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+          uv run python scripts/bump_sdk_pin.py --latest "$latest"
+
+      - name: Re-lock against the bumped pin
+        id: relock
+        if: steps.bump.outcome == 'success'
+        continue-on-error: true
+        run: uv lock
+
+      - name: Open or update the bump PR
+        id: pr
+        if: steps.relock.outcome == 'success'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          LATEST: ${{ steps.bump.outputs.latest }}
+        run: |
+          branch="sdk-bump/$LATEST"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add pyproject.toml uv.lock
+          git commit -m "chore(deps): bump unitares-sdk pin to track $LATEST"
+          git push --force origin "$branch"
+
+          title="Bump unitares-sdk pin to track $LATEST"
+          body=$(
+            printf 'The pinned `unitares-sdk` range no longer covers the latest published release.\n\n'
+            printf '```json\n%s\n```\n\n' "$(cat drift.json)"
+            printf 'This bumps the pin and re-locks against the published %s wheel. Check the\n' "$LATEST"
+            printf 'SDK changelog for behaviour changes before merging — this detects VERSION\n'
+            printf 'drift only, not contract drift within the pinned range.\n\n'
+            printf 'Opened by `.github/workflows/sdk-drift.yml`. Never auto-merged.\n'
+          )
+          existing=$(gh pr list --state open --head "$branch" --json number --jq '.[0].number')
+          if [ -z "$existing" ]; then
+            gh pr create --title "$title" --body "$body" --head "$branch" --base main --draft
+          fi
+
+      - name: Fall back to an issue when the pin could not be bumped automatically
+        if: steps.drift.outputs.drift == 'true' && steps.pr.outcome != 'success'
         env:
           GH_TOKEN: ${{ github.token }}
           TITLE: "unitares-sdk pin has fallen behind Core"
@@ -47,6 +104,8 @@ jobs:
             printf 'The pinned `unitares-sdk` range no longer covers the latest published release.\n\n'
             printf '```json\n%s\n```\n\n' "$(cat drift.json)"
             printf 'Resident still resolves and builds; it is tracking an older contract.\n\n'
+            printf 'An automatic bump PR was attempted and did not complete — check the\n'
+            printf '"SDK drift" workflow run log for which step failed.\n\n'
             printf 'Bump the pin in `pyproject.toml`, re-lock, and check the SDK changelog for\n'
             printf 'behaviour changes. Note this detects VERSION drift only — a release inside\n'
             printf 'the pinned range can still change behaviour and would not appear here.\n\n'
