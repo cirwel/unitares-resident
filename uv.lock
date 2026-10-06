@@ -783,22 +783,22 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0,<10.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.24,<2.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12,<1.0" },
-    { name = "unitares-sdk", specifier = ">=0.3.0,<0.4.0" },
+    { name = "unitares-sdk", specifier = ">=0.4.0,<0.5.0" },
 ]
 provides-extras = ["dev"]
 
 [[package]]
 name = "unitares-sdk"
-version = "0.3.0"
+version = "0.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "mcp" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/bc/94/78584fc59752b131e0fd0eb1cde8ce447fc13857ec75e69db3a25adbaa18/unitares_sdk-0.3.0.tar.gz", hash = "sha256:15b8c2b9c920dff32e96d8e8c8de50dd9f4bb563dbc2de1f287faf180c0cc041", size = 121000, upload-time = "2026-08-30T00:06:52.643Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a2/44/80799aa4663cb9f455e75ebe0e199ba062fb393bbe591c39fa9bbe2ddf4b/unitares_sdk-0.4.0.tar.gz", hash = "sha256:0696af3aa4ce5c6b80d13c132343479e5aab8ccca4ca9a390682eb0234221fc4", size = 143923, upload-time = "2026-09-27T18:42:07.867Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/55/dd/553e2fe079841543e59ca115a2eef1588d3e7696b2068b7ed5779db240bb/unitares_sdk-0.3.0-py3-none-any.whl", hash = "sha256:eb7b19aafcf7abfac41cfc5022fa06b3089256bf2ba91258a419b529812cc377", size = 86145, upload-time = "2026-08-30T00:06:51.385Z" },
+    { url = "https://files.pythonhosted.org/packages/d0/9f/3b6c7667368cb065f1f1f37b31c08c4bd5b7134e7d9f8b68a2b6a44bbe6e/unitares_sdk-0.4.0-py3-none-any.whl", hash = "sha256:5441ce5ad102b9b0bf8ecd37ca21447d7e0857bae52fb3c71778ad2fb363aa54", size = 101753, upload-time = "2026-09-27T18:42:06.528Z" },
 ]
 
 [[package]]

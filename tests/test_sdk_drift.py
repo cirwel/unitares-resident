@@ -8,17 +8,24 @@ from packaging.specifiers import SpecifierSet
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
+from bump_sdk_pin import next_pin  # noqa: E402
 from check_sdk_drift import DriftError, assess, read_pin  # noqa: E402
 
 PIN = SpecifierSet(">=0.3.0,<0.4.0")
 
 
 def test_reads_the_real_pin_from_this_repo():
-    """Not a fixture: if the dependency is renamed, this check goes blind."""
+    """Not a fixture: if the dependency is renamed, this check goes blind.
+
+    Version-agnostic on purpose: naming the current floor here made every pin
+    bump (including the ones bump_sdk_pin.py opens) fail this test. What stays
+    fixed is the shape: a floor plus the next-minor ceiling the bumper writes.
+    """
     root = Path(__file__).resolve().parents[1]
     pin = read_pin((root / "pyproject.toml").read_text())
-    assert pin.contains("0.3.0")
-    assert not pin.contains("0.2.2")
+    floors = [spec.version for spec in pin if spec.operator == ">="]
+    assert len(floors) == 1, f"expected exactly one >= floor in {pin}"
+    assert pin == SpecifierSet(next_pin(floors[0]))
 
 
 @pytest.mark.parametrize(
