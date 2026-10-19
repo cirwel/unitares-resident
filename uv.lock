@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.12"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -783,22 +783,22 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0,<10.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.24,<2.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12,<1.0" },
-    { name = "unitares-sdk", specifier = ">=0.4.0,<0.5.0" },
+    { name = "unitares-sdk", specifier = ">=0.5.0,<0.6.0" },
 ]
 provides-extras = ["dev"]
 
 [[package]]
 name = "unitares-sdk"
-version = "0.4.0"
+version = "0.5.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "httpx" },
     { name = "mcp" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a2/44/80799aa4663cb9f455e75ebe0e199ba062fb393bbe591c39fa9bbe2ddf4b/unitares_sdk-0.4.0.tar.gz", hash = "sha256:0696af3aa4ce5c6b80d13c132343479e5aab8ccca4ca9a390682eb0234221fc4", size = 143923, upload-time = "2026-09-27T18:42:07.867Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/3d/06e9bc14e7fe2ed3f7567dbff248952e1cfb9c736da67a89fbd3a64316f0/unitares_sdk-0.5.0.tar.gz", hash = "sha256:43701ecf058a39f2efe63f5df54e404016e3fc764799a43de13e172f3472b3f0", size = 150581, upload-time = "2026-10-18T09:11:19.305Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/d0/9f/3b6c7667368cb065f1f1f37b31c08c4bd5b7134e7d9f8b68a2b6a44bbe6e/unitares_sdk-0.4.0-py3-none-any.whl", hash = "sha256:5441ce5ad102b9b0bf8ecd37ca21447d7e0857bae52fb3c71778ad2fb363aa54", size = 101753, upload-time = "2026-09-27T18:42:06.528Z" },
+    { url = "https://files.pythonhosted.org/packages/e0/6a/da4c75e109e446ce606158509b1b08ce8185f3706b4fed589534da1ca9fc/unitares_sdk-0.5.0-py3-none-any.whl", hash = "sha256:d42c8e35e473ab38be2fed1343c59d1a40643666dbbe63eaaae0478efd49cd39", size = 105066, upload-time = "2026-10-18T09:11:17.837Z" },
 ]
 
 [[package]]
