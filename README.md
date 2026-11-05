@@ -24,10 +24,10 @@ custom runtime should be able to use the same public contract.
 
 ## Status
 
-This repository is an **early skeleton**, not a usable general-purpose agent
-yet. It establishes the product boundary and a tested runtime seam for model
-backends. Provider adapters, durable conversations, tool execution, scheduling,
-and operator interfaces are subsequent milestones.
+This repository provides the runtime loop, Core compatibility doctor, and model
+backend seam on the public `unitares-sdk` contract. Provider adapters, durable
+conversations, tool execution, scheduling, and operator interfaces build on
+this runtime boundary.
 
 Core compatibility is negotiated live rather than inferred from matching
 repository or package versions. `unitares-resident doctor` connects through the
