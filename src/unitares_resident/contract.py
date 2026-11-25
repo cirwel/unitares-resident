@@ -7,7 +7,10 @@ from typing import Any
 
 INTERFACE_CONTRACT_SCHEMA = "unitares.interface-contract.v1"
 MIN_INTERFACE_VERSION = (1, 1, 0)
-MAX_INTERFACE_MAJOR = 1
+# Interface 2.0.0 (Core v4.x) changed host selection for delegate_inference and
+# thorough consult only. Resident uses neither; it needs the four lifecycle
+# capabilities below, which 2.x still declares with the same success envelope.
+MAX_INTERFACE_MAJOR = 2
 LIFECYCLE_ENVELOPE_SCHEMA = "unitares.lifecycle-envelope.v1"
 REQUIRED_LIFECYCLE_CAPABILITIES = (
     "start_session",

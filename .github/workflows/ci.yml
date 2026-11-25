@@ -28,15 +28,15 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: cirwel/unitares
-          # Contract-producing commit from the merged Core PR
-          # (cirwel/unitares#1908). Pinning a specific commit keeps this
-          # consumer gate reproducible; advance it whenever
+          # Core v4.1.0 release commit (tag v4.1.0, cirwel/unitares#3358),
+          # which ships interface contract 2.5.0. Pinning a specific commit
+          # keeps this consumer gate reproducible; advance it whenever
           # docs/interface-contract.v1.json changes on Core's default branch
           # (contract-drift.yml reports when it has — see that workflow for
           # why this pin needs a reporter at all: it already shipped once
           # pointing at a pre-merge draft commit whose surface_sha256 didn't
           # match what actually merged).
-          ref: a2a6635057f7893b8c1fb173651b3d2793f98405
+          ref: 56a674bfedc7e4a41e31fcb9ab162a43e7e9dab8
           path: .contract/core
       - uses: astral-sh/setup-uv@v6
         with:
