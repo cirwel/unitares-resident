@@ -43,3 +43,28 @@ def test_turn_state_is_bounded(field: str):
     values = {"summary": "work", field: 1.1}
     with pytest.raises(ValueError):
         ResidentTurn(**values)
+
+
+def test_resident_keeps_its_identity_guards_on_the_sdk_agent():
+    config = ResidentConfig()
+    agent = ResidentAgent(config, StubBackend(None))
+    assert agent.name == config.name
+    assert agent.mcp_url == config.mcp_url
+    assert agent.persistent is True
+    assert agent.refuse_fresh_onboard is True
+    assert agent.cycle_timeout_seconds == config.cycle_timeout_seconds
+
+
+@pytest.mark.asyncio
+async def test_missing_anchor_refuses_a_silent_fresh_onboard(tmp_path, monkeypatch):
+    """Without an anchor, the SDK must refuse before it ever calls Core."""
+    from unitares_sdk.errors import IdentityBootstrapRefused
+
+    monkeypatch.delenv("UNITARES_FIRST_RUN", raising=False)
+    agent = ResidentAgent(ResidentConfig(), StubBackend(None))
+    agent.session_file = tmp_path / "anchor.json"
+    agent.legacy_session_file = None
+
+    with pytest.raises(IdentityBootstrapRefused):
+        await agent._ensure_identity(None)  # type: ignore[arg-type]
+    assert agent.agent_uuid is None

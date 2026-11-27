@@ -48,10 +48,23 @@ def test_accepts_compatible_live_discovery():
     assert report["lifecycle_envelope"] == "unitares.lifecycle-envelope.v1"
 
 
-@pytest.mark.parametrize("version", ["1.0.0", "2.0.0", "banana"])
+@pytest.mark.parametrize("version", ["1.1.0", "1.52.0", "2.0.0", "2.5.0"])
+def test_accepts_supported_interface_majors(version):
+    """Core v4.1.0 ships interface 2.5.0; 1.x Cores stay supported."""
+    report = validate_discovery(_discovery(version))
+    assert report["compatible"] is True
+    assert report["interface"]["version"] == version
+
+
+@pytest.mark.parametrize("version", ["1.0.0", "3.0.0", "banana"])
 def test_rejects_unsupported_interface_versions(version):
     with pytest.raises(ContractCompatibilityError):
         validate_discovery(_discovery(version))
+
+
+def test_newer_major_error_names_the_supported_major():
+    with pytest.raises(ContractCompatibilityError, match="supported major 2"):
+        validate_discovery(_discovery("3.0.0"))
 
 
 def test_rejects_missing_live_capability():
